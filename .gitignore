@@ -108,3 +108,6 @@ venv.bak/
 
 # Vagrant cache folder
 .vagrant
+
+# Claude Code
+CLAUDE.md
