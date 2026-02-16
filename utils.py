@@ -33,6 +33,8 @@ def one_hot_encode_column(df, column_to_encode, prefix):
 def preprocess_data(df):
     # Drop task_code since it is not required.
     df = df.drop(columns=['task_code', 'pid'])
+    df =  one_hot_encode_column(df, 'name', 'name')
+    df['time']=pd.to_numeric(df['time'], errors='coerce')
 
     # Get the time column
     time_np = np.diff(df['time'].values, n=1)
@@ -45,6 +47,4 @@ def preprocess_data(df):
     df.drop(df.tail(1).index, inplace=True)
     df['time'] = time_np_diff_scaled.tolist()
 
-    # One hot encoding of the task names.
-    df = one_hot_encode_column(df=df, column_to_encode='name', prefix='name')
     return df
