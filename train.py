@@ -24,9 +24,9 @@ print("matplotlib==%s" % matplotlib.__version__)
 
 print("Package git commit hashes:")
 print("pandas==%s" % pd.__git_version__)
-print("numpy==%s" % np.__git_revision__)
+print("numpy==%s" % np.__version__)
 print("torch==%s" % torch.version.git_version)
-print("matplotlib==%s" % json.loads(matplotlib._version.version_json)['full-revisionid'])
+print("matplotlib==%s" % matplotlib.__version__)
 
 seed = 42
 device = utils.DEVICE
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     # Load and preprocess data.
     df = pd.read_csv("data/scheduling_data_out_ab_nginx.csv")
     df = utils.preprocess_data(df=df)
-    data = df.to_numpy()
+    data = df.to_numpy(dtype=np.float32)
     data_dim = data.shape[1]
     total = data.shape[0]
     remainder = total % batch_size
@@ -58,15 +58,20 @@ if __name__ == '__main__':
         "At least 1 value in the dataframe is non-numeric."
 
     train_x, train_y, test_x, test_y = utils.make_training_and_testing_set(data, percent_train=97.0)
-    train_x, train_y, test_x, test_y = train_x.to(device), train_y.to(device), test_x.to(device), test_y.to(device)
+    train_x = train_x.to(device=device, dtype=torch.float32)
+    train_y=train_y.to(device=device, dtype=torch.float32)
+    test_x=test_x.to(device=device, dtype=torch.float32)
+    test_y=test_y.to(device=device, dtype=torch.float32)
 
     # build the model
     seq = model.Sequence2(in_dim=data_dim, out_dim=data_dim, hidden_dim=hidden_dim).to(device)
-    seq.double()
+    seq.float()
 
     criterion = nn.MSELoss().to(device)
     # use LBFGS as optimizer since we can load the whole data to train
     optimizer = optim.LBFGS(seq.parameters(), lr=0.8)
+    print("train_x dtype/device:", train_x.dtype, train_x.device)
+    print("model param dtype/device:", next(seq.parameters()).dtype, next(seq.parameters()).device)
 
     # begin to train
     for i in range(15):
@@ -75,7 +80,7 @@ if __name__ == '__main__':
 
         def closure():
             optimizer.zero_grad()
-            out = seq(train_x).to(device)
+            out = seq(train_x)
             _loss = criterion(out, train_y).to(device)
             print('loss:', _loss.item())
             _loss.backward()
@@ -111,4 +116,4 @@ if __name__ == '__main__':
         plt.savefig('predict%d.pdf' % i)
         plt.close()
 
-    make_dot(pred, seq.named_parameters())
+    make_dot(pred,params=dict(seq.named_parameters()))
