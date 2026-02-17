@@ -22,11 +22,11 @@ print("numpy==%s" % np.__version__)
 print("torch==%s" % torch.__version__)
 print("matplotlib==%s" % matplotlib.__version__)
 
-print("Package git commit hashes:")
-print("pandas==%s" % pd.__git_version__)
-print("numpy==%s" % np.__git_revision__)
-print("torch==%s" % torch.version.git_version)
-print("matplotlib==%s" % json.loads(matplotlib._version.version_json)['full-revisionid'])
+# print("Package git commit hashes:")
+# print("pandas==%s" % pd.__git_version__)
+# # print("numpy==%s" % np.__git_revision__)
+# print("torch==%s" % torch.version.git_version)
+# print("matplotlib==%s" % json.loads(matplotlib._version.version_json)['full-revisionid'])
 
 seed = 42
 device = utils.DEVICE
@@ -50,7 +50,10 @@ if __name__ == '__main__':
     remainder = total % batch_size
     data = data[:total - remainder, :]
     data = data.reshape(batch_size, data_dim, -1)  # TODO: Stop hard-coding this.
-    data = np.transpose(data, axes=(0, 2, 1))
+    data = np.transpose(data, axes=(0, 2, 1)).astype(np.float64)
+
+    print(df.dtypes)
+    print(df.head())
 
     assert not df.isnull().values.any(), "Dataset contains a NaN value. Aborting."
 
