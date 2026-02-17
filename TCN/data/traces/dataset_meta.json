@@ -1,0 +1,30 @@
+{
+  "total_events": 19108935,
+  "train_events": 7248718,
+  "test_seen_events": 3169916,
+  "test_unseen_events": 8690301,
+  "train_ratio": 0.8,
+  "seed": 42,
+  "unseen_category": "sysbench_threads",
+  "categories": [
+    "cpu_bound",
+    "hackbench",
+    "io_mixed",
+    "sysbench_cpu",
+    "sysbench_memory",
+    "sysbench_threads"
+  ],
+  "num_traces": 36,
+  "csv_columns": [
+    "timestamp",
+    "time_diff",
+    "task_name",
+    "pid",
+    "cpu",
+    "prev_state",
+    "prev_comm",
+    "workload_type",
+    "trace_id"
+  ],
+  "created_at": "2026-02-17T13:55:29.084923"
+}
