@@ -1,0 +1,432 @@
+================================================================================
+collect_traces.py Documentation
+================================================================================
+
+This document explains how collect_traces.py works, what it produces, and how
+its output feeds into the TCN (and baseline LSTM) training pipeline.
+
+NOTE: This doesn't use SchedViz (we don't need the visualization piece. We only 
+need the CSVs for training and testing). Instead, the script writes to the same
+tracefs files and enables the same 4 tracepoints that SchedViz's trace.sh does,
+but it doesn't use any SchedViz code. 
+
+
+1. OVERVIEW
+================================================================================
+
+collect_traces.py collects real Linux kernel scheduling traces using ftrace 
+(the same kernel tracing mechanism that Google SchedViz uses)
+While SchedViz is a visualization tool, the actual data capture relies on four
+ftrace tracepoints:
+
+    sched_switch       — a task is switched onto a CPU
+    sched_wakeup       — a task is woken up
+    sched_wakeup_new   — a newly created task is woken up
+    sched_migrate_task — a task is migrated between CPUs
+
+The script runs configurable workloads (hackbench, sysbench, custom CPU-bound
+and I/O-mixed) while ftrace records every scheduling decision the kernel makes.
+The raw traces are then parsed into structured CSV files and split into
+training and test datasets.
+
+This replaces the original KernelOracle approach of using `perf sched map`,
+which produced a simplified, single-workload view. The new approach captures
+richer data across diverse workloads, enabling the TCN model to learn
+generalized scheduling patterns.
+
+
+2. PREREQUISITES
+================================================================================
+
+System requirements:
+  - Linux kernel with ftrace support 
+  - Root/sudo access (required to configure ftrace)
+  - Python 
+
+Optional external workload tools:
+  - hackbench  — scheduler stress test
+      Install: sudo apt install rt-tests        (Ubuntu/Debian)
+               sudo yum install rt-tests        (RHEL/CentOS)
+  - sysbench   — multi-threaded CPU/memory/thread benchmark
+      Install: sudo apt install sysbench        (Ubuntu/Debian)
+               sudo yum install sysbench        (RHEL/CentOS)
+
+If hackbench or sysbench are not installed, those workloads are automatically
+skipped. The built-in CPU-bound and I/O-mixed workloads always run (they use
+only Python stdlib and dd (dd is a command-line utility used for low-level copying and conversion of data)).
+
+Target machine note:
+  The script auto-detects the number of CPUs. For a 5-CPU target, the default
+  16 MB/cpu buffer gives 80 MB total trace buffer, which is sufficient for
+  10-30 second workload runs.
+
+
+3. USAGE
+================================================================================
+
+The script has three commands:
+
+  collect  — Run workloads and capture raw ftrace traces (requires sudo)
+  build    — Parse raw traces into train/test CSV files (no sudo needed)
+  all      — Do both in sequence (requires sudo)
+
+--- Collecting traces ---
+
+  # Run ALL workloads, 3 runs each (default):
+  sudo python3 collect_traces.py collect --output-dir traces
+
+  # Run a specific workload:
+  sudo python3 collect_traces.py collect -o traces -w hackbench_pipe_small
+
+  # Multiple specific workloads (comma-separated):
+  sudo python3 collect_traces.py collect -o traces -w cpu_bound_4p,cpu_bound_8p
+
+  # Customize runs and buffer size:
+  sudo python3 collect_traces.py collect -o traces --runs 5 --buffer-size 32768
+
+  # List all available workloads and their install status:
+  python3 collect_traces.py collect --list-workloads
+
+--- Building the dataset ---
+
+  # Parse raw traces and build train/test CSVs:
+  python3 collect_traces.py build --output-dir traces
+
+  # Custom train/test ratio and seed:
+  python3 collect_traces.py build -o traces --train-ratio 0.75 --seed 123
+
+  # Don't hold out an unseen category:
+  python3 collect_traces.py build -o traces --no-unseen-split
+
+  # Use a different raw directory:
+  python3 collect_traces.py build -o traces --raw-dir /path/to/raw/traces
+
+--- End-to-end ---
+
+  # Collect + build in one command:
+  sudo python3 collect_traces.py all --output-dir traces
+
+
+4. WORKLOAD DESCRIPTIONS
+================================================================================
+
+The script includes 12 workloads across 5 categories:
+
+HACKBENCH (category: hackbench)
+  Hackbench is a standard Linux scheduler benchmark. It creates groups of
+  sender/receiver tasks that pass messages through pipes or sockets, generating
+  heavy context-switch activity.
+
+  hackbench_pipe_small    — 4 groups, pipes, 3000 message loops
+  hackbench_pipe_large    — 8 groups, pipes, 5000 message loops
+  hackbench_socket_small  — 4 groups, sockets, 3000 message loops
+  hackbench_socket_large  — 8 groups, sockets, 5000 message loops
+
+SYSBENCH CPU (category: sysbench_cpu)
+  CPU-intensive threads doing prime number computation.
+
+  sysbench_cpu_4t         — 4 threads, 10 seconds
+  sysbench_cpu_8t         — 8 threads, 10 seconds
+
+SYSBENCH THREADS (category: sysbench_threads)
+  Threads repeatedly yielding and being rescheduled. Generates rapid
+  context switches driven by voluntary yields.
+
+  sysbench_threads_8t     — 8 threads, 10 seconds
+  sysbench_threads_16t    — 16 threads, 10 seconds
+
+SYSBENCH MEMORY (category: sysbench_memory)
+  Threads doing memory allocation and access patterns.
+
+  sysbench_memory_4t      — 4 threads, 10 seconds
+
+CPU-BOUND (category: cpu_bound) [built-in, no external tools]
+  Python multiprocessing workers doing tight math (sin/cos/sqrt loops).
+  Pure CPU contention with no I/O.
+
+  cpu_bound_4p            — 4 processes, 10 seconds
+  cpu_bound_8p            — 8 processes, 10 seconds
+
+I/O MIXED (category: io_mixed) [built-in, no external tools]
+  Combines dd (reading /dev/urandom, writing to disk with fdatasync) with
+  CPU burn processes. Creates mixed scheduling behavior with both CPU-bound
+  and I/O-bound tasks competing for CPU time.
+
+  io_mixed                — 2 dd + 2 CPU processes, 10 seconds
+
+
+5. OUTPUT STRUCTURE
+================================================================================
+
+After running `all` (or `collect` + `build`), the output directory contains:
+
+  traces/
+  ├── raw/                              Raw ftrace output (one file per run)
+  │   ├── hackbench_pipe_small_run0.txt
+  │   ├── hackbench_pipe_small_run0.json    (per-trace metadata)
+  │   ├── hackbench_pipe_small_run1.txt
+  │   ├── hackbench_pipe_small_run1.json
+  │   ├── ...
+  │   └── io_mixed_run2.json
+  ├── train.csv                         Training dataset
+  ├── test_seen.csv                     Test set (same workload types as train)
+  ├── test_unseen.csv                   Test set (held-out workload category)
+  ├── all.csv                           Combined dataset (all events)
+  └── dataset_meta.json                 Split metadata and statistics
+
+
+6. CSV FORMAT
+================================================================================
+
+Each row in the CSV files represents one sched_switch event (a task being
+scheduled onto a CPU). Columns:
+
+  timestamp      Absolute kernel timestamp in seconds (float, 6 decimal places).
+                 Useful for reference/debugging. Typically dropped during
+                 preprocessing since time_diff carries the temporal signal.
+
+  time_diff      Time elapsed since the previous sched_switch event in this
+                 trace, in seconds (float, 9 decimal places / nanosecond
+                 precision). This is the primary temporal feature. The first
+                 event in each trace has time_diff = 0.
+
+  task_name      The name of the task being scheduled IN (from ftrace's
+                 next_comm field). This is the prediction target — the model
+                 learns to predict which task the scheduler picks next.
+                 Examples: hackbench, swapper/2, kworker/0:1H, <idle>, ksoftirqd/3
+
+  pid            Process ID of the task being scheduled in (next_pid).
+                 Can distinguish multiple instances of the same binary.
+                 May be dropped during preprocessing if it causes overfitting.
+
+  cpu            CPU core number where the scheduling event occurred (0-indexed).
+                 On a 5-CPU system, values are 0-4. Can be one-hot encoded as
+                 a feature — useful for learning NUMA/cache-affinity patterns.
+
+  prev_state     The state of the task being scheduled OUT. Indicates WHY the
+                 previous task left the CPU:
+                   R  = still runnable (preempted — involuntary switch)
+                   S  = sleeping (voluntary — waiting for I/O, lock, etc.)
+                   D  = uninterruptible sleep (disk I/O, usually)
+                   T  = stopped (signal)
+                   t  = traced (debugger)
+                   X  = dead
+                   Z  = zombie
+                   I  = idle (kernel idle task)
+                 This is a valuable feature: patterns like "after an I/O sleep
+                 (D), the scheduler tends to pick task X" are learnable.
+
+  prev_comm      Name of the task being scheduled OUT (prev_comm). Provides
+                 context about what was running before the current decision.
+
+  workload_type  The workload that was running when this event was captured.
+                 Used for analysis and can be dropped during model training.
+                 Examples: hackbench_pipe_small, sysbench_cpu_4t, cpu_bound_8p
+
+  trace_id       Unique identifier for the trace run (e.g., hackbench_pipe_small_run0).
+                 IMPORTANT: The TCN preprocessor should use this to split
+                 sequences at trace boundaries. Events from different traces
+                 are unrelated — the time_diff at a trace boundary is meaningless.
+
+
+7. TRAIN / TEST SPLIT STRATEGY
+================================================================================
+
+The split operates at the TRACE level, not the event level. This is important
+because events within a trace are temporally correlated — random event-level
+splitting would leak information.
+
+The strategy has two components:
+
+  1. UNSEEN WORKLOAD TEST (generalization)
+     If there are >= 3 workload categories, one entire category is randomly
+     held out and placed in test_unseen.csv. This measures whether the model
+     can generalize to workload types it has never seen during training.
+
+     Example: if "hackbench" is held out, ALL hackbench traces go to
+     test_unseen.csv — the model trains on sysbench, cpu_bound, and io_mixed
+     only, and is tested on hackbench.
+
+  2. SEEN WORKLOAD TEST (standard evaluation)
+     The remaining categories are split by trace file at the specified ratio
+     (default 80/20). Training traces go to train.csv, held-out traces from
+     the same categories go to test_seen.csv.
+
+     Example: if cpu_bound has 6 traces, 5 go to train and 1 to test_seen.
+
+  Fallback: If there are too few traces to get any test_seen data (e.g.,
+  only 1 trace per category), the script falls back to an event-level split
+  within the training data.
+
+  The split is reproducible via the --seed flag (default: 42).
+
+
+8. COMPARISON WITH BASELINE PIPELINE
+================================================================================
+
+  Baseline (LSTM / perf sched map):
+    perf sched map → out_ab_nginx.txt → data_preprocessing.py → CSV
+    Columns: task_code, time, name, pid
+    Preprocessing: drop task_code & pid, compute time_diff, min-max scale,
+                   one-hot encode task_name
+
+  New (TCN / ftrace):
+    ftrace sched_switch → raw traces → collect_traces.py → CSV
+    Columns: timestamp, time_diff, task_name, pid, cpu, prev_state,
+             prev_comm, workload_type, trace_id
+    Preprocessing (for TCN): drop timestamp/workload_type/trace_id,
+                             min-max scale time_diff,
+                             one-hot encode task_name + cpu + prev_state,
+                             optionally encode prev_comm
+
+  Key improvements over baseline:
+    - Multiple diverse workloads instead of one nginx/ab trace
+    - Additional features: cpu, prev_state, prev_comm
+    - Proper train/test split by trace (prevents data leakage)
+    - Unseen-workload generalization testing
+    - Much larger dataset (tens of thousands to millions of events)
+
+  To produce a baseline-compatible CSV from the new data (for comparison):
+    Keep only: time_diff (as "time"), task_name (as "name"), pid
+    Add: task_code (assign single-char codes to unique task names)
+    This lets you run the original LSTM on the new, larger dataset.
+
+    ************************************************************
+    *** I WILL MAKE A SCRIPT THAT CONVERTS test_seen.csv and ***
+    ******* test_unseen.csv INTO A BASELINE-COMPATIBLE *********
+    ************ CSV, SO WE CAN GET COMPARISON DATA ************
+    ************************************************************
+
+
+9. HOW FTRACE COLLECTION WORKS
+================================================================================
+
+The script interacts with ftrace through the tracefs filesystem, typically
+mounted at /sys/kernel/tracing. This is the same mechanism Google SchedViz's
+trace.sh uses. The steps for each trace run are:
+
+  1. SETUP
+     - Write "0" to tracing_on (stop any active tracing)
+     - Write "" to trace (clear the ring buffer)
+     - Write "nop" to current_tracer (disable function tracing)
+     - Write buffer_size_kb to buffer_size_kb (set per-CPU buffer)
+     - Write "nooverwrite" to trace_options (drop new events if full,
+       rather than silently losing old events — matches SchedViz behavior)
+     - Write "0" to events/enable (disable all events)
+     - Write "1" to events/sched/{sched_switch,sched_wakeup,...}/enable
+
+  2. CAPTURE
+     - Write "1" to tracing_on (start recording)
+     - Run the workload (blocking — waits for completion)
+     - Write "0" to tracing_on (stop recording)
+
+  3. READOUT
+     - Read the "trace" file (snapshot of all per-CPU buffers, merged and
+       sorted by timestamp)
+     - Save to raw output file
+
+  4. CLEANUP
+     - Disable all sched tracepoints
+     - Clear the trace buffer
+
+The raw trace output looks like:
+
+  # tracer: nop
+  #
+  #                    TASK-PID     CPU#  ||||   TIMESTAMP  FUNCTION
+  #                       | |        |   ||||      |         |
+            <idle>-0     [002] d... 12345.678901: sched_switch: prev_comm=swapper/2 prev_pid=0 prev_prio=120 prev_state=R ==> next_comm=hackbench next_pid=4567 next_prio=120
+         hackbench-4567  [002] d... 12345.678950: sched_switch: prev_comm=hackbench prev_pid=4567 prev_prio=120 prev_state=S ==> next_comm=hackbench next_pid=4568 next_prio=120
+
+The parser uses a regex to extract the fields from sched_switch lines. Other
+event types (sched_wakeup, etc.) are captured in the raw trace but currently
+only sched_switch is parsed into the CSV. The raw files are preserved so
+additional event types can be extracted later if needed.
+
+
+10. BUFFER SIZING
+================================================================================
+
+The ftrace ring buffer is allocated per-CPU. The default is 16 MB/cpu:
+
+  5 CPUs x 16 MB = 80 MB total
+
+Each sched_switch event in the text trace is roughly 200-300 bytes. At
+16 MB/cpu, each CPU can hold approximately 55,000-80,000 events before the
+buffer fills. For most 10-30 second workloads, this is more than sufficient.
+
+If you see "WARNING: No events captured" or want to trace longer workloads:
+  - Increase buffer: --buffer-size 32768   (32 MB/cpu)
+  - Or reduce workload duration
+
+The script uses "nooverwrite" mode (same as SchedViz): if the buffer fills,
+new events are dropped rather than overwriting old ones. This preserves the
+beginning of the trace. Check the raw trace for a "# entries-in-buffer /
+entries-written" line to see if events were dropped.
+
+
+11. SIGNAL HANDLING
+================================================================================
+
+If you press Ctrl+C during collection, the script catches SIGINT and cleans up
+ftrace (disables tracepoints, clears buffer) before exiting. This prevents
+leaving ftrace in a dirty state that could affect system performance.
+
+If the script is killed with SIGKILL (kill -9) and ftrace is left enabled,
+you can manually clean up:
+
+  echo 0 > /sys/kernel/tracing/tracing_on
+  echo 0 > /sys/kernel/tracing/events/sched/sched_switch/enable
+  echo 0 > /sys/kernel/tracing/events/sched/sched_wakeup/enable
+  echo 0 > /sys/kernel/tracing/events/sched/sched_wakeup_new/enable
+  echo 0 > /sys/kernel/tracing/events/sched/sched_migrate_task/enable
+  echo > /sys/kernel/tracing/trace
+
+
+12. FILE OWNERSHIP
+================================================================================
+
+Since ftrace requires root, the script runs with sudo. To prevent output files
+from being owned by root, the script detects the SUDO_USER/SUDO_UID/SUDO_GID
+environment variables and chowns all output files back to the original user
+after collection completes.
+
+
+13. NOTE ON CFS vs. EEVDF
+================================================================================
+
+The original LSTM (baseline) model predicts the sequences of tasks selected by CFS. Starting with
+Linux 6.6 (2023), CFS was replaced by EEVDF (Earliest Eligible Virtual
+Deadline First) as the default scheduler for normal (SCHED_NORMAL) tasks.
+
+If your target kernel is 6.6+, the scheduling decisions recorded in the traces
+are made by EEVDF, not CFS. However:
+
+  - The ftrace tracepoints (sched_switch, etc.) are identical
+  - The data format is unchanged
+  - EEVDF lives in the same kernel/sched/fair.c code path
+  - The problem is the same: predict the next scheduled task from history
+
+For the purposes of this project, the distinction is minor. The model learns
+from whatever scheduler is running. If you need CFS specifically, use a
+kernel < 6.6 (e.g., the ubuntu/bionic64 Vagrant VM from the original setup).
+
+
+14. TROUBLESHOOTING
+================================================================================
+
+"Cannot find tracefs"
+  The tracefs filesystem isn't mounted. Try:
+    sudo mount -t tracefs tracefs /sys/kernel/tracing
+
+"Root privileges required"
+  ftrace needs root access. Use sudo.
+
+"WARNING: No events captured"
+  - The workload may have finished too quickly
+  - The buffer may be misconfigured
+  - Check: cat /sys/kernel/tracing/trace | head
+
+"Permission denied writing to tracefs"
+  Even with sudo, some security modules (SELinux, AppArmor) may block writes.
+  Check dmesg for denial messages.
