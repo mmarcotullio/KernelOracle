@@ -1,5 +1,3 @@
-This project builds upon Sampanna Yashwant Kahu's work:
-
 ### KernelOracle: Predicting the Linux Scheduler's Next Move with Deep Learning
 Efficient task scheduling is paramount in the Linux kernel, where the Completely Fair Scheduler (CFS) meticulously manages CPU resources to balance high utilization with interactive responsiveness. This research pioneers the use of deep learning techniques to predict the sequence of tasks selected by CFS, aiming to evaluate the feasibility of a more generalized and potentially more adaptive task scheduler for diverse workloads. Our core contributions are twofold: first, the systematic generation and curation of a novel scheduling dataset from a running Linux kernel, capturing real-world CFS behavior; and second, the development, training, and evaluation of a Long Short-Term Memory (LSTM) network designed to accurately forecast the next task to be scheduled. Our paper further discusses the practical pathways and implications of integrating such a predictive model into the kernel's scheduling framework. The findings and methodologies presented herein open avenues for data-driven advancements in kernel scheduling, with the full source code provided for reproducibility and further exploration.
 
@@ -18,6 +16,3 @@ Efficient task scheduling is paramount in the Linux kernel, where the Completely
 11. Run ```conda env create -f environment.yml``` to install conda environment.
 12. Activate the created environment.
 13. Run ```python train.py``` to train the model.
-
-------------------------------------------------------------------------
-We aim to improve performance by replacing the baseline LSTM model with a temporal convolutional neural network (TCN). Additionally, we will be training on more diverse workloads, using ftrace to collect (real) Linux kernel scheduling data (hackbench, sysbench, custom cpu-bound loops, I/O workloads).  
