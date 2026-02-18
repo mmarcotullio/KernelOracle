@@ -20,4 +20,4 @@ Efficient task scheduling is paramount in the Linux kernel, where the Completely
 13. Run ```python train.py``` to train the model.
 
 ------------------------------------------------------------------------
-We aim to improve performance by replacing the baseline LSTM model with a temporal convolutional neural network (TCN). Additionally, we will be training on more diverse workloads, using ftrace to collect (real) kernel scheduling data (hackbecnh, sysbench, custom cpu-bound loops, I/O workloads).  
+We aim to improve performance by replacing the baseline LSTM model with a temporal convolutional neural network (TCN). Additionally, we will be training on more diverse workloads, using ftrace to collect (real) Linux kernel scheduling data (hackbench, sysbench, custom cpu-bound loops, I/O workloads).  
