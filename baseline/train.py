@@ -117,3 +117,6 @@ if __name__ == '__main__':
         plt.close()
 
     make_dot(pred,params=dict(seq.named_parameters()))
+
+    torch.save(seq.state_dict(), "model.pt")
+    print("Model saved to model.pt")
