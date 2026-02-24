@@ -113,3 +113,7 @@ CLAUDE.md
 
 # Raw ftrace traces (large, regenerable)
 TCN/data/traces/raw/
+TCN/data/traces/*.csv
+TCN/data/traces/*.json
+baseline/data/*.csv
+baseline/data/*.txt
