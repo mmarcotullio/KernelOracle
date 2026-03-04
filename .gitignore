@@ -108,8 +108,3 @@ venv.bak/
 
 # Vagrant cache folder
 .vagrant
-
-CLAUDE.md
-
-# Raw ftrace traces (large, regenerable)
-TCN/data/traces/raw/
