@@ -17,10 +17,10 @@ class Sequence2(nn.Module):
 
     def forward(self, input_tensor, future=0):
         outputs = []
-        h_t = torch.zeros(input_tensor.size(0), self.hidden_dim, dtype=torch.double).to(device)
-        c_t = torch.zeros(input_tensor.size(0), self.hidden_dim, dtype=torch.double).to(device)
-        h_t2 = torch.zeros(input_tensor.size(0), self.hidden_dim, dtype=torch.double).to(device)
-        c_t2 = torch.zeros(input_tensor.size(0), self.hidden_dim, dtype=torch.double).to(device)
+        h_t = torch.zeros(input_tensor.size(0), self.hidden_dim, device=device, dtype=input_tensor.dtype)
+        c_t = torch.zeros(input_tensor.size(0), self.hidden_dim, device=device, dtype=input_tensor.dtype)
+        h_t2 = torch.zeros(input_tensor.size(0), self.hidden_dim, device=device, dtype=input_tensor.dtype)
+        c_t2 = torch.zeros(input_tensor.size(0), self.hidden_dim, device=device, dtype=input_tensor.dtype)
 
         # The batch size needs to be smaller because the GPU can't store all the outputs for all the batches.
         chunks = torch.chunk(input_tensor, input_tensor.size(1), dim=1)
