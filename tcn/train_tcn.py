@@ -22,6 +22,15 @@ from tcn.models.tcn import TCNConfig, TCNNextPid
 from tcn.utils.data import TraceWindowDataset, Vocab, batch_to_device
 from tcn.utils.metrics import top1_accuracy, measure_inference_latency_ms
 
+workloads = [
+    "cpu_bound_4p",
+    "cpu_bound_8p",
+    "hackbench_pipe_large",
+    "hackbench_socket_large",
+    "io_mixed",
+    "sysbench_cpu_8t",
+    "sysbench_memory_4t",
+]
 
 def make_loader(npz_path: str, batch_size: int, shuffle: bool) -> DataLoader:
     ds = TraceWindowDataset(npz_path)
