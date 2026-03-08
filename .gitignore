@@ -69,13 +69,12 @@ docs/_build/
 # PyBuilder
 target/
 data_tcn/
-*.csv  
+# *.csv
 *.npy
 *.pt
 *.log
 __pycache__/
 venv/
-
 # Jupyter Notebook
 .ipynb_checkpoints
 
