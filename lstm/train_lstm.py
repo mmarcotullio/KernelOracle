@@ -91,17 +91,17 @@ def measure_inference_latency_ms_safe(model: torch.nn.Module,
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--train_npz", default="tcn/artifacts/train.npz")
-    ap.add_argument("--test_seen_npz", default="tcn/artifacts/test_seen.npz")
-    ap.add_argument("--test_unseen_npz", default="tcn/artifacts/test_unseen.npz")
-    ap.add_argument("--vocab", default="tcn/artifacts/vocab.json")
+    ap.add_argument("--train_npz", default="lstm/artifacts/train.npz")
+    ap.add_argument("--test_seen_npz", default="lstm/artifacts/test_seen.npz")
+    ap.add_argument("--test_unseen_npz", default="lstm/artifacts/test_unseen.npz")
+    ap.add_argument("--vocab", default="lstm/artifacts/vocab.json")
     ap.add_argument("--epochs", type=int, default=5)
     ap.add_argument("--batch_size", type=int, default=256)
     ap.add_argument("--lr", type=float, default=3e-4)
     ap.add_argument("--hidden", type=int, default=128)
     ap.add_argument("--num_layers", type=int, default=2)
     ap.add_argument("--dropout", type=float, default=0.1)
-    ap.add_argument("--save_dir", default="tcn/models")
+    ap.add_argument("--save_dir", default="lstm/models")
     args = ap.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
