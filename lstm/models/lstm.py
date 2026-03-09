@@ -11,12 +11,12 @@ import torch.nn as nn
 class LSTMConfig:
     num_pids: int
     num_states: int
-    pid_emb: int = 32
-    state_emb: int = 8
+    pid_emb: int = 64
+    state_emb: int = 16
     cont_dim: int = 2
-    hidden: int = 128
-    num_layers: int = 2
-    dropout: float = 0.1
+    hidden: int = 256
+    num_layers: int = 3
+    dropout: float = 0.2
 
 
 class LSTMNextPid(nn.Module):

@@ -38,7 +38,7 @@ def train_one_epoch(model: torch.nn.Module,
         batch["state"] = batch["state"].clamp(0, model.cfg.num_states - 1)
         batch["y"] = batch["y"].clamp(0, model.cfg.num_pids - 1) 
         logits = model(batch["pid"], batch["cont"], state=batch["state"])
-        loss = torch.nn.functional.cross_entropy(logits, batch["y"])
+        loss = torch.nn.functional.cross_entropy(logits, batch["y"], label_smoothing=0.05)
 
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
