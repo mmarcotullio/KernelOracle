@@ -34,6 +34,9 @@ def train_one_epoch(model: torch.nn.Module,
 
     for batch in loader:
         batch = batch_to_device(batch, device)
+        batch["pid"] = batch["pid"].clamp(0, model.cfg.num_pids - 1)
+        batch["state"] = batch["state"].clamp(0, model.cfg.num_states - 1)
+        batch["y"] = batch["y"].clamp(0, model.cfg.num_pids - 1) 
         logits = model(batch["pid"], batch["cont"], state=batch["state"])
         loss = torch.nn.functional.cross_entropy(logits, batch["y"])
 
@@ -56,6 +59,9 @@ def eval_model(model: torch.nn.Module, loader: DataLoader, device: torch.device)
 
     for batch in loader:
         batch = batch_to_device(batch, device)
+        batch["pid"] = batch["pid"].clamp(0, model.cfg.num_pids - 1)
+        batch["state"] = batch["state"].clamp(0, model.cfg.num_states - 1)
+        batch["y"] = batch["y"].clamp(0, model.cfg.num_pids - 1)
         logits = model(batch["pid"], batch["cont"], state=batch["state"])
         acc = top1_accuracy(logits, batch["y"])
         bsz = batch["y"].shape[0]
