@@ -21,13 +21,12 @@ git lfs pull
 
 
 **Optional, if you'd ike to collect your own trace data (requires root). Note: this is not necessary if you pulled the existing trace data files:** 
-#### this will build test_seen.csv, test_unseen.csv, train.csv, and the split by workloads test CSVs in /data/traces
 ```bash
 cd data
 sudo python3 collect_traces.py all
 python3 split_by_workload.py traces/test_seen.csv
 ```
-
+###### this builds test_seen.csv, test_unseen.csv, train.csv, and the split by workloads test CSVs in /data/traces
 
 
 
