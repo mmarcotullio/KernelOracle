@@ -69,13 +69,20 @@ docs/_build/
 # PyBuilder
 target/
 data_tcn/
+<<<<<<< HEAD
 *.csv  
+=======
+# *.csv
+>>>>>>> 9442ccd3b5839dd38cb3fdd259a5b75389a1d569
 *.npy
 *.pt
 *.log
 __pycache__/
 venv/
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9442ccd3b5839dd38cb3fdd259a5b75389a1d569
 # Jupyter Notebook
 .ipynb_checkpoints
 
