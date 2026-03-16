@@ -1,3 +1,38 @@
+## Setup
+
+**1. Clone the repo**
+```bash
+git clone https://github.com/mmarcotullio/KernelOracle
+cd KernelOracle
+```
+
+**2. Create Python virtual environment and install dependencies**
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+## Scheduling Trace Data Collection
+
+**Optional, if you'd like to pull the repo's existing trace data files:**
+```bash
+git lfs install
+git lfs pull
+```
+
+
+**Optional, if you'd ike to collect your own trace data (requires root). Note: this is not necessary if you pulled the existing trace data files:** 
+```bash
+cd data
+sudo python3 collect_traces.py all
+python3 split_by_workload.py traces/test_seen.csv
+```
+###### this builds test_seen.csv, test_unseen.csv, train.csv, and the split by workloads test CSVs in /data/traces
+
+
+
+
 ## Below is the baseline description and instructions: 
 ### KernelOracle: Predicting the Linux Scheduler's Next Move with Deep Learning
 Efficient task scheduling is paramount in the Linux kernel, where the Completely Fair Scheduler (CFS) meticulously manages CPU resources to balance high utilization with interactive responsiveness. This research pioneers the use of deep learning techniques to predict the sequence of tasks selected by CFS, aiming to evaluate the feasibility of a more generalized and potentially more adaptive task scheduler for diverse workloads. Our core contributions are twofold: first, the systematic generation and curation of a novel scheduling dataset from a running Linux kernel, capturing real-world CFS behavior; and second, the development, training, and evaluation of a Long Short-Term Memory (LSTM) network designed to accurately forecast the next task to be scheduled. Our paper further discusses the practical pathways and implications of integrating such a predictive model into the kernel's scheduling framework. The findings and methodologies presented herein open avenues for data-driven advancements in kernel scheduling, with the full source code provided for reproducibility and further exploration.
