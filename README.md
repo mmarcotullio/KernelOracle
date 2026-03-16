@@ -15,7 +15,7 @@ pip install -r requirements.txt
 
 ## Scheduling Trace Data Collection
 
-**Optional, if youd like to pull the repo's existing trace data files**
+**Optional, if youd like to pull the repo's existing trace data files:**
 ```bash
 git lfs install
 git lfs pull
