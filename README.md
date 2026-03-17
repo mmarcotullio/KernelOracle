@@ -1,5 +1,5 @@
 ## Acknowledgment 
-This project builds upon Sampanna Yashwant Kahu's project, found at: [Repository]([paper](https://arxiv.org/abs/2505.15213)), [paper](https://arxiv.org/abs/2505.15213)
+This project builds upon Sampanna Yashwant Kahu's project, found at: [Repository](https://github.com/SampannaKahu/KernelOracle)), [paper](https://arxiv.org/abs/2505.15213)
 
 ## Abstract
 Process scheduling is one of the most performance-critical
