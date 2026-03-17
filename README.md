@@ -4,7 +4,7 @@ This project builds upon Sampanna Yashwant Kahu's project, found at: [repository
 ## Abstract
 Process scheduling is one of the most performance-critical
 components of an operating system. The Linux Completely
-Fair Scheduler (CFS) makes decisions purely from instanta-
+Fair Scheduler (CFS) makes decisions purely from instanta
 neous kernel state, with no memory of historical execution
 patterns. KernelOracle [ 5 ] demonstrated that scheduling se-
 quences are learnable from traces using an LSTM network, but
@@ -21,7 +21,7 @@ and maintains lower inference latency. After five epoch of
 training, our TCN achieves accuracy and inference latency
 which outperforms the LSTM baseline. Our results show that
 Linux scheduling behavior is highly predictable across diverse
-workloads, and that a TCN is a more suitable model architec-
+workloads, and that a TCN is a more suitable model architec
 ture than an LSTM for this task.
 
 
