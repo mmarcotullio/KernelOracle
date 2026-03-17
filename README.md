@@ -17,7 +17,7 @@ CPU-bound, I/O-mixed, and scheduler-stress scenarios.
 We then replace KernalOracle’s Long Short Term Memory
 (LSTM) approach with a Temporal Convolutional Network
 (TCN), an architecture that processes sequences in parallel
-and maintains lower inference latency. After five epoch of
+and maintains lower inference latency. After five epochs of
 training, our TCN achieves accuracy and inference latency
 which outperforms the LSTM baseline. Our results show that
 Linux scheduling behavior is highly predictable across diverse
