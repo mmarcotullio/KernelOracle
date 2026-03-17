@@ -24,7 +24,7 @@ Linux scheduling behavior is highly predictable across diverse
 workloads, and that a TCN is a more suitable model architec
 ture than an LSTM for this task. 
 
-Full paper can be found [here](https://github.com/mmarcotullio/KernelOracle). 
+Full paper can be found [here](https://github.com/mmarcotullio/KernelOracle/blob/main/report.pdf). 
 
 
 ## Setup
