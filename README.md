@@ -55,4 +55,4 @@ cd data
 sudo python3 collect_traces.py all
 python3 split_by_workload.py traces/test_seen.csv
 ```
-###### this builds test_seen.csv, test_unseen.csv, train.csv, and the split by workloads test CSVs in /data/traces
+This builds test_seen.csv, test_unseen.csv, train.csv, and the split by workloads test CSVs in /data/traces.
