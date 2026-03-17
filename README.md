@@ -6,11 +6,11 @@ Process scheduling is one of the most performance-critical
 components of an operating system. The Linux Completely
 Fair Scheduler (CFS) makes decisions purely from instantaneous
 kernel state, with no memory of historical execution
-patterns. KernelOracle [ 5 ] demonstrated that scheduling sequences
+patterns. KernelOracle demonstrated that scheduling sequences
 are learnable from traces using an LSTM network, but
 the model was trained on only a single workload and inference
 latency was far too high for real-time use. The goal of this
-project is to address both, building off of this repository [4 ].
+project is to address both, building off of this repository mentioned in the acknowledgement.
 We build a new data collection pipeline using Linux ftrace
 to capture scheduling traces across diverse workloads, including 
 CPU-bound, I/O-mixed, and scheduler-stress scenarios.
