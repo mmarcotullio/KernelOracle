@@ -22,7 +22,9 @@ training, our TCN achieves accuracy and inference latency
 which outperforms the LSTM baseline. Our results show that
 Linux scheduling behavior is highly predictable across diverse
 workloads, and that a TCN is a more suitable model architec
-ture than an LSTM for this task.
+ture than an LSTM for this task. 
+
+Full paper can be found [here](https://github.com/mmarcotullio/KernelOracle/edit/main/README.md). 
 
 
 ## Setup
