@@ -6,13 +6,13 @@ Process scheduling is one of the most performance-critical
 components of an operating system. The Linux Completely
 Fair Scheduler (CFS) makes decisions purely from instanta
 neous kernel state, with no memory of historical execution
-patterns. KernelOracle [ 5 ] demonstrated that scheduling se-
+patterns. KernelOracle [ 5 ] demonstrated that scheduling se
 quences are learnable from traces using an LSTM network, but
 the model was trained on only a single workload and inference
 latency was far too high for real-time use. The goal of this
 project is to address both, building off of this repository [4 ].
 We build a new data collection pipeline using Linux ftrace
-to capture scheduling traces across diverse workloads, includ-
+to capture scheduling traces across diverse workloads, includ
 ing CPU-bound, I/O-mixed, and scheduler-stress scenarios.
 We then replace KernalOracle’s Long Short Term Memory
 (LSTM) approach with a Temporal Convolutional Network
