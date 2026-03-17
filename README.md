@@ -51,7 +51,7 @@ git lfs pull
 ```
 
 
-**Optional, if you'd ike to collect your own trace data (requires root). Note: this is not necessary if you pulled the existing trace data files:** 
+**Optional, if you'd ike to collect your own trace data (requires root).** 
 ```bash
 cd data
 sudo python3 collect_traces.py all
