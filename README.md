@@ -12,7 +12,7 @@ but the model was trained on only a single workload and inference latency was fa
 capture scheduling traces across diverse workloads, including CPU-bound, I/O-mixed, and scheduler-stress scenarios. We then replace KernalOracle’s Long Short Term Memory
 (LSTM) approach with a Temporal Convolutional Network (TCN), an architecture that processes sequences in parallel and maintains lower inference latency. After five epochs of training, our TCN achieves accuracy and inference latency which outperforms the LSTM baseline. Our results show that Linux scheduling behavior is highly predictable across diverse workloads, and that a TCN is a more suitable model architecture than an LSTM for this task.
 
-Above is the abstract of our paper. The full paper can be found [here](https://github.com/mmarcotullio/KernelOracle/blob/main/report.pdf). 
+Above is the abstract of our paper. The full paper can be found [here](https://github.com/mmarcotullio/KernelOracle/blob/main/KernelOracle_PredictiveScheduling_FinalReport.pdf). 
 
 
 ## Setup
