@@ -61,11 +61,18 @@ This builds test_seen.csv, test_unseen.csv, train.csv, and the split by workload
 ## Code Breakdown
 The code in the `data` directory contains python scripts that are utilized for the data generation, which include creating the dataset, splitting into train and test set and by workload, and generating a test set for unseen workloads. The commands above walk you through the data generation process.
 
-The `lstm` and `tcn` directories contain the code we used for the model architectures, the data preprocessing, and training. These commands are shown in the respective jupyter notebooks that will be explained in the next section of this guide.
+The `lstm` and `tcn` directories contain the code we used for the model architectures, the data preprocessing, and metrics helpers such as top-1 accuracy. These commands are shown in the respective jupyter notebooks that will be explained in the next section of this guide.
 
 ## Setting Up Google Drive and Training The Models
-The files `lstm_training_and_evaluation.ipynb` and `tcn_training_and_evaluation.ipynb` are the ones that are being used for model trainings for the LSTM and TCN respectively. They contain the code and commands that should be run in order to go through the data preprocessing, training, and evaluation. In order to train the models, the best way to train is by downloading the python notebook files into your Google Drive account. The main reason is that these notebooks are designed to run on Google Colab due to its ability to train with GPUs, and we used the fastest GPU, the A100.
+The files `lstm_training_and_evaluation.ipynb` and `tcn_training_and_evaluation.ipynb` are the ones that are being used for model trainings for the LSTM and TCN respectively. They contain the code and commands that should be run in order to go through the data preprocessing, training, and evaluation. 
 
-Additionally, due to potential constraints that Git LFS may have in terms of quota limits, I would download the csv files under `data/traces` (or the ones that you generated) and create a folder in Google Drive called `trace_data` and load those csv files into the `trace_data` folder. This path is very important because it will be used when you have to mount the drive while running the python notebooks.
+In order to train the models, the best way to train is by downloading the python notebook files into your Google Drive account. The main reason is that these notebooks are designed to run on Google Colab due to its ability to train with GPUs, and we used the fastest GPU, the A100. Additionally, due to potential constraints that Git LFS may have in terms of quota limits, I would download the csv files under `data/traces` (or the ones that you generated) and create a folder in Google Drive called `trace_data` and load those csv files into the `trace_data` folder. This path is very important because it will be used when you have to mount the drive while running the python notebooks.
 
-NOTE: Depending on your machine, the actual values for the inference latency and throughput might vary depending on the user because it is run on the cpu and each machine is different. We still expect that the trends will stay mostly consistent. We also expect that top-1 accuracy is likely to be similar values for anyone executing these notebooks. 
+Once you download the necessary files into the google drive, the workflow of the notebooks does the following:
+1. Cloning the repository
+2. Mounting to your google drive for file path compatibility
+3. Running the model's data preprocessing script (code is under `<model_type>/scripts) for the training, seen test, and unseen test sets. This script converts the csv files into npz files. (NOTE: In the TCN notebook, we also ran this script for the workload specific csv files to obtain accuracy comparisons among each workload).
+4. Train the model and get the top-1 accuracy
+5. Force switch the device from GPU to CPU to get efficiency metrics, including inference latency
+
+Disclaimer: Depending on your machine, the actual values for the inference latency and throughput might vary depending on the user because it is run on the cpu and each machine is different. We still expect that the trends will stay mostly consistent. We also expect that top-1 accuracy is likely to be similar values for anyone executing these notebooks. 
