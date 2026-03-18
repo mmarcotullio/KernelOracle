@@ -162,16 +162,5 @@ def main():
 
         print(f"{w:25s} acc={acc:.4f} samples={len(ds)}")
 
-    # batch = next(iter(train_loader))
-    # batch = batch_to_device(batch, device)
-    # lat_ms = measure_inference_latency_ms(
-    #     model,
-    #     {"pid": batch["pid"], "cont": batch["cont"], "state": batch["state"]},
-    #     warmup=20,
-    #     iters=100
-    # )
-    # print(f"Avg forward latency per batch: {lat_ms:.3f} ms (device={device})")
-
-
 if __name__ == "__main__":
     main()
