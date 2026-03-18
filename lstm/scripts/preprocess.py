@@ -107,9 +107,9 @@ def make_windows(df: pd.DataFrame, seq_len: int, stride: int) -> Tuple[np.ndarra
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--csv", required=True, help="Path to a CSV trace (e.g., data_tcn/train.csv)")
-    ap.add_argument("--out", required=True, help="Output npz path (e.g., tcn/artifacts/train.npz)")
-    ap.add_argument("--vocab_out", default="tcn/artifacts/vocab.json", help="Where to save vocab.json")
+    ap.add_argument("--csv", required=True, help="Path to a CSV trace (e.g., trace_data/train.csv)")
+    ap.add_argument("--out", required=True, help="Output npz path (e.g., lstm/artifacts/train.npz)")
+    ap.add_argument("--vocab_out", default="lstm/artifacts/vocab.json", help="Where to save vocab.json")
     ap.add_argument("--seq_len", type=int, default=64)
     ap.add_argument("--stride", type=int, default=1)
     ap.add_argument("--use_existing_vocab", action="store_true",

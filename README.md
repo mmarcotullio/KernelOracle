@@ -58,3 +58,8 @@ sudo python3 collect_traces.py all
 python3 split_by_workload.py traces/test_seen.csv
 ```
 This builds test_seen.csv, test_unseen.csv, train.csv, and the split by workloads test CSVs in /data/traces.
+
+## Setting Up Google Drive
+In order to train the models, the best way to train is by downloading the files `lstm_implementation_and_eval.ipynb` and `TCN_Training_&_Evaluation.ipynb` into your Google Drive account.
+
+Additionally, due to potential constraints that Git LFS may have in terms of quota limits, I would download the csv files under `data/traces` (or the ones that you generated) and create a folder in Google Drive called `DATA` and load those csv files into the `DATA` folder.
