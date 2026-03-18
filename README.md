@@ -72,7 +72,7 @@ Once you download the necessary files into the google drive, the workflow of the
 1. Cloning the repository
 2. Mounting to your google drive for file path compatibility
 3. Running the model's data preprocessing script (code is under `<model_type>/scripts/preprocess.py`) for the training, seen test, and unseen test sets. This script converts the csv files into npz files. (NOTE: In the TCN notebook, we also ran this script for the workload specific csv files to obtain accuracy comparisons among each workload).
-4. Run a command that trains the model and gets the top-1 accuracy (code is under `<model_type>/<train_model_type>.py`). 
-5. Force switch the device from GPU to CPU to get efficiency metrics, including inference latency
+4. Run a command that trains the model and gets the top-1 accuracy (code is under `<model_type>/train_<model_type>.py`). 
+5. Force switch the device from GPU to CPU to get efficiency metrics, including inference latency.
 
 Disclaimer: Depending on your machine, the actual values for the inference latency and throughput might vary depending on the user because it is run on the cpu and each machine is different. We still expect that the trends will stay mostly consistent. We also expect that top-1 accuracy is likely to be similar values for anyone executing these notebooks. 
